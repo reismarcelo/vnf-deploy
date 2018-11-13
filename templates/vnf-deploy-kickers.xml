@@ -1,0 +1,18 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+    <kickers xmlns="http://tail-f.com/ns/kicker">
+        <data-kicker>
+            <id>vnf-deploy-{/name}-notify</id>
+            <monitor>/ncs:services/vnf-deploy:vnf-deploy/vnf-deploy:vnf[vnf-deploy:tenant='{/tenant}'][vnf-deploy:name='{/name}'][vnf-deploy:esc='{/esc}']/vnf-deploy:plan/vnf-deploy:component[vnf-deploy:name='self']/vnf-deploy:state[vnf-deploy:name='ncs:ready']</monitor>
+            <trigger-expr>vnf-deploy:status='reached'</trigger-expr>
+            <kick-node>/ncs:services/vnf-deploy:vnf-deploy/vnf-deploy:vnf[vnf-deploy:tenant='{/tenant}'][vnf-deploy:name='{/name}'][vnf-deploy:esc='{/esc}']</kick-node>
+            <action-name>notify</action-name>
+        </data-kicker>
+        <data-kicker>
+            <id>vnf-deploy-{/name}-redeploy</id>
+            <monitor>/nfvo-rel2:nfvo/nfvo-rel2:vnf-info/nfvo-rel2-esc:esc/nfvo-rel2-esc:vnf-deployment[nfvo-rel2-esc:tenant='{/tenant}'][nfvo-rel2-esc:deployment-name='{$DEPLOYMENT_NAME}'][nfvo-rel2-esc:esc='{/esc}']/nfvo-rel2-esc:plan/nfvo-rel2-esc:component[nfvo-rel2-esc:name='self']/nfvo-rel2-esc:state[nfvo-rel2-esc:name='ncs:ready']</monitor>
+            <trigger-expr>nfvo-rel2-esc:status='reached'</trigger-expr>
+            <kick-node>/ncs:services/vnf-deploy:vnf-deploy/vnf-deploy:vnf[vnf-deploy:tenant='{/tenant}'][vnf-deploy:name='{/name}'][vnf-deploy:esc='{/esc}']</kick-node>
+            <action-name>reactive-re-deploy</action-name>
+        </data-kicker>
+    </kickers>
+</config-template>

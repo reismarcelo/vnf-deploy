@@ -1,0 +1,187 @@
+module vnf-deploy {
+
+  namespace "http://cisco.com/cx/vnf-deploy";
+  prefix vnf-deploy;
+
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import resource-allocator {
+    prefix ralloc;
+  }
+
+  import ipaddress-allocator {
+    prefix ipalloc;
+  }
+
+
+  organization "Cisco Systems, Inc.";
+
+  contact
+    " Marcelo Reis
+      mareis@cisco.com
+    ";
+
+  description
+    " Sample service to demonstrate deployment of VNFs using NFVO, providing resource-management and REST notifications
+      when the VNF is ready.
+    ";
+
+
+  // =========================================================================
+  //  REVISION
+  // =========================================================================
+
+  revision 2018-11-09 {
+    description
+      "Initial version";
+  }
+
+
+  // =========================================================================
+  //  IDENTITIES
+  // =========================================================================
+
+  identity resource-allocations {
+    description "Plan component state indicating status of resource-allocations";
+    base ncs:plan-state;
+  }
+
+  identity vnf-ready {
+    description "Plan component state indicating whether VNF is ready";
+    base ncs:plan-state;
+  }
+
+
+  // =========================================================================
+  //  GROUPINGS
+  // =========================================================================
+
+  grouping pool-cfg-grouping {
+    leaf pool-name {
+      tailf:info "Name of the ip address pool.";
+      type leafref {
+        path "/ralloc:resource-pools/ipalloc:ip-address-pool/ipalloc:name";
+      }
+    }
+    leaf prefix-length {
+      tailf:info "Subnet length.";
+      type uint8 {
+        tailf:info "<1-32>;; Length";
+        range "1..32";
+      }
+    }
+  }  // pool-cfg-grouping
+
+
+  // =========================================================================
+  //  SERVICE-POINTS
+  // =========================================================================
+
+  augment /ncs:services {
+    container vnf-deploy {
+      tailf:info "VNF deployment service";
+      tailf:cli-add-mode;
+
+      list vnf {
+        tailf:info "VNF information";
+        key "tenant name esc";
+
+        leaf tenant {
+          tailf:info "VIM tenant/project name";
+          type string;
+        }
+
+        leaf name {
+          tailf:info "Unique VNF name";
+          type string;
+        }
+
+        leaf esc {
+          tailf:info "ESC device";
+          type leafref {
+            path "/ncs:devices/ncs:device/ncs:name";
+          }
+        }
+
+        uses ncs:service-data;
+        uses ncs:plan-data;
+        ncs:servicepoint vnf-deploy-servicepoint;
+
+        tailf:action notify {
+          tailf:actionpoint vnf-deploy-actionpoint;
+          input {
+          }
+          output {
+          }
+        }
+
+      }  // list vnf
+
+      container common {
+        tailf:info "Configuration common to all VNFs";
+        tailf:cli-add-mode;
+
+        container mgmt-intf {
+          tailf:info "Management interface";
+          tailf:cli-add-mode;
+          uses pool-cfg-grouping;
+        }
+
+        container inet-intf {
+          tailf:info "Internet interface";
+          tailf:cli-add-mode;
+          uses pool-cfg-grouping;
+        }
+
+      }  // container common
+
+      container rest-callback {
+        tailf:info "VNF ready notification settings";
+        tailf:cli-add-mode;
+
+        leaf uri {
+          tailf:info "REST URI.";
+          type string {
+            tailf:info "<string>;;URI";
+          }
+        }
+
+        leaf payload {
+          tailf:info "REST payload data (in XML), sent with the notification";
+          type string {
+            tailf:info "<string>;;XML payload";
+          }
+        }
+
+        leaf username {
+          tailf:info "REST username";
+          type string {
+            tailf:info "<string>;;username";
+          }
+        }
+
+        leaf password {
+          tailf:info "REST password";
+          tailf:suppress-echo "true";
+          type tailf:aes-cfb-128-encrypted-string {
+            tailf:info "<string>;;password";
+          }
+        }
+      }  // container rest-callback
+
+    }  // container vnf-deploy
+
+  }  // augment
+
+}

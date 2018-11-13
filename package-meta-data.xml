@@ -1,0 +1,21 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+    <name>vnf-deploy</name>
+    <package-version>1.0</package-version>
+    <description>VNF deploy package</description>
+    <ncs-min-version>4.7</ncs-min-version>
+
+    <required-package>
+        <name>resource-manager</name>
+    </required-package>
+
+    <required-package>
+        <name>tailf-etsi-rel2-nfvo</name>
+    </required-package>
+
+    <component>
+        <name>main</name>
+        <application>
+            <python-class-name>vnf_deploy.main.Main</python-class-name>
+        </application>
+    </component>
+</ncs-package>
