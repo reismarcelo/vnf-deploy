@@ -103,7 +103,10 @@ def subnet_first_host(subnet_str):
     :return: String representing the IP address in <prefix>/<len> format
     """
     subnet = ip_network(subnet_str)
-    return '{}/{}'.format(next(subnet.hosts()), subnet.prefixlen)
+    if subnet.num_addresses == 1:
+        return str(subnet)
+    else:
+        return '{}/{}'.format(next(subnet.hosts()), subnet.prefixlen)
 
 
 # ---------------------------------------------

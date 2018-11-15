@@ -1,6 +1,6 @@
 <ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
     <name>vnf-deploy</name>
-    <package-version>1.0</package-version>
+    <package-version>1.1</package-version>
     <description>VNF deploy package</description>
     <ncs-min-version>4.7</ncs-min-version>
 
